@@ -15,6 +15,7 @@ export default function Page() {
       color="violet"
     />
     <EventCard
+      id="1"
       title="40's & Over Happy Hour (Drink Specials)"
       date="Thu, May 14 · 6:30 PM EDT"
       hostedBy="NYC Introverts That Want To Be E..."

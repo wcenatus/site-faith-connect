@@ -1,0 +1,229 @@
+// FaithConnect database schema
+// Database: SQLite (file lives in /mocks/dev.db)
+// Connection string is configured in prisma.config.ts via DATABASE_URL.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ───────────────────────── People & Orgs ─────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  avatarUrl String?
+  city      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hostedEvents     Event[]           @relation("EventCreatedBy")
+  ownedGroups      Group[]           @relation("GroupOwner")
+  rsvps            Rsvp[]
+  groupMemberships GroupMembership[]
+  savedEvents      SavedEvent[]
+  savedGroups      SavedGroup[]
+  reviews          Review[]
+  friendsInitiated Friendship[]      @relation("FriendshipFrom")
+  friendsReceived  Friendship[]      @relation("FriendshipTo")
+}
+
+model Church {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  logoUrl     String?
+  verified    Boolean  @default(false)
+  city        String?
+  address     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  events Event[]
+  groups Group[]
+}
+
+// ───────────────────────── Taxonomy ─────────────────────────
+
+model Category {
+  id       String @id @default(cuid())
+  slug     String @unique // "bible-study"
+  title    String // "Bible Study"
+  iconName String // "mdi:book-open-variant"
+  color    String // "violet"
+
+  events Event[]
+  groups Group[]
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  label String @unique // "Faith & Growth"
+  color String // "violet"
+
+  groups GroupTag[]
+}
+
+// ───────────────────────── Events ─────────────────────────
+
+model Event {
+  id             String    @id @default(cuid())
+  title          String
+  description    String?
+  imageUrl       String?
+  startsAt       DateTime
+  endsAt         DateTime?
+  timezone       String? // "America/New_York"
+  isInPerson     Boolean   @default(true)
+  locationName   String?
+  address        String?
+  audience       String? // "Women only"
+  ageRestriction String? // "Ages 18+"
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  churchId String?
+  church   Church? @relation(fields: [churchId], references: [id])
+
+  createdById String
+  createdBy   User   @relation("EventCreatedBy", fields: [createdById], references: [id])
+
+  rsvps   Rsvp[]
+  saved   SavedEvent[]
+  reviews Review[]
+
+  @@index([startsAt])
+  @@index([categoryId])
+}
+
+model Rsvp {
+  userId    String
+  eventId   String
+  status    String // "GOING" | "INTERESTED"
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([userId, eventId])
+  @@index([eventId, status])
+}
+
+// ───────────────────────── Groups ─────────────────────────
+
+model Group {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  coverImageUrl String?
+  iconName      String? // "mdi:book-open-variant"
+  city          String?
+  meetFrequency String? // "Every Tuesday"
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  churchId String?
+  church   Church? @relation(fields: [churchId], references: [id])
+
+  ownerId String
+  owner   User   @relation("GroupOwner", fields: [ownerId], references: [id])
+
+  members GroupMembership[]
+  tags    GroupTag[]
+  saved   SavedGroup[]
+  reviews Review[]
+
+  @@index([categoryId])
+}
+
+model GroupMembership {
+  userId   String
+  groupId  String
+  role     String   @default("MEMBER") // "OWNER" | "ADMIN" | "MEMBER"
+  joinedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([userId, groupId])
+}
+
+model GroupTag {
+  groupId String
+  tagId   String
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, tagId])
+}
+
+// ───────────────────────── Social ─────────────────────────
+
+model Friendship {
+  fromId     String
+  toId       String
+  acceptedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  from User @relation("FriendshipFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  to   User @relation("FriendshipTo", fields: [toId], references: [id], onDelete: Cascade)
+
+  @@id([fromId, toId])
+}
+
+// ───────────────────────── Saves & Reviews ─────────────────────────
+
+model SavedEvent {
+  userId    String
+  eventId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([userId, eventId])
+}
+
+model SavedGroup {
+  userId    String
+  groupId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([userId, groupId])
+}
+
+// A Review belongs to one User and to either an Event OR a Group (XOR enforced in app code).
+model Review {
+  id        String   @id @default(cuid())
+  score     Int // 1..5
+  comment   String?
+  createdAt DateTime @default(now())
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  eventId String?
+  event   Event?  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  groupId String?
+  group   Group?  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([groupId])
+}

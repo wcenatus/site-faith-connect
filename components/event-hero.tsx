@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
+import { AvatarStack } from "@/components/avatar-stack";
 
 export type EventHeroProps = {
   category: string;
@@ -12,7 +13,7 @@ export type EventHeroProps = {
   going: number;
   interested: number;
   attendeeAvatars?: string[];
-  description: string;
+  description?: string | null;
   imageUrl: string;
   imageAlt?: string;
 };
@@ -31,8 +32,14 @@ export function EventHero({
 }: EventHeroProps) {
   const [saved, setSaved] = useState(false);
 
-  const visibleAvatars = attendeeAvatars.slice(0, 5);
-  const overflow = going + interested - visibleAvatars.length;
+  const attendeePeople = attendeeAvatars.map((src, i) => ({
+    name: `Attendee ${i + 1}`,
+    imageUrl: src,
+  }));
+  const overflow = Math.max(
+    going + interested - Math.min(attendeePeople.length, 5),
+    0,
+  );
 
   return (
     <div className="relative w-full overflow-hidden rounded-3xl">
@@ -91,26 +98,12 @@ export function EventHero({
             </div>
           </div>
 
-          {/* Avatars */}
-          {visibleAvatars.length > 0 && (
-            <div className="flex items-center gap-2">
-              <div className="flex -space-x-2">
-                {visibleAvatars.map((src, i) => (
-                  <div
-                    key={i}
-                    className="relative h-8 w-8 overflow-hidden rounded-full ring-2 ring-white"
-                  >
-                    <Image src={src} alt={`Attendee ${i + 1}`} fill className="object-cover" />
-                  </div>
-                ))}
-                {overflow > 0 && (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-600 ring-2 ring-white">
-                    <span className="text-xs font-semibold text-white">+{overflow}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+          <AvatarStack
+            people={attendeePeople}
+            max={5}
+            size="md"
+            extraCount={overflow}
+          />
 
           {/* Description inside the image */}
           <p className="text-sm leading-relaxed text-white/80">{description}</p>

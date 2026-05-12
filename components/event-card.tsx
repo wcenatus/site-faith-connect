@@ -1,10 +1,11 @@
 import Image from "next/image";
 import { Icon } from "@iconify/react";
-
+import Link from "next/link";
 export type EventCardProps = {
   title: string;
   date: string;
   hostedBy: string;
+  id: string;
   rating?: number;
   attendees: number;
   imageUrl: string;
@@ -15,13 +16,14 @@ export function EventCard({
   title,
   date,
   hostedBy,
+  id,
   rating,
   attendees,
   imageUrl,
   imageAlt = "",
 }: EventCardProps) {
   return (
-    <div className="group flex w-80 flex-col gap-3 cursor-pointer rounded-2xl p-1 transition-colors hover:bg-zinc-100">
+    <Link href={`/event/${id}`} className="group flex w-80 flex-col gap-3 cursor-pointer rounded-2xl p-1 transition-colors hover:bg-zinc-100">
       {/* Image stands alone with its own rounded corners */}
       <div className="relative h-44 w-full overflow-hidden rounded-2xl">
         <Image src={imageUrl} alt={imageAlt} fill className="object-cover" />
@@ -46,6 +48,6 @@ export function EventCard({
           <span>{attendees} attendees</span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
