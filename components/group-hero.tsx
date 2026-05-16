@@ -12,9 +12,6 @@ export type GroupHeroProps = {
   groupName: string;
   description?: string | null;
   iconName?: string;
-  memberCount: number;
-  meetFrequency: string;
-  hostedBy: string;
   previewMembers?: GroupHeroMember[];
   extraMemberCount?: number;
   /** Optional photographic image used as the right-side backdrop. */
@@ -30,9 +27,6 @@ export function GroupHero({
   groupName,
   description,
   iconName = "mdi:leaf",
-  memberCount,
-  meetFrequency,
-  hostedBy,
   previewMembers = [],
   extraMemberCount = 0,
   imageUrl,
@@ -41,7 +35,7 @@ export function GroupHero({
   backLabel = "Back to groups",
 }: GroupHeroProps) {
   return (
-    <section className="relative w-full overflow-hidden rounded-3xl bg-[#f5ebd6]">
+    <section className="relative left-1/2 ml-[-50vw] w-screen overflow-hidden bg-[#f5ebd6]">
       {/* Right-side photographic backdrop */}
       {imageUrl && (
         <div className="pointer-events-none absolute inset-0">
@@ -61,8 +55,8 @@ export function GroupHero({
         </div>
       )}
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col gap-5 px-6 py-6 md:px-8 md:py-7">
+      {/* Content — constrained to match the page max width */}
+      <div className="relative z-10 mx-auto flex w-full max-w-[1400px] flex-col gap-5 px-1 py-6 md:py-7">
         {/* Back link */}
         <Link
           href={backHref}
@@ -113,39 +107,6 @@ export function GroupHero({
               className="pt-1"
             />
           </div>
-        </div>
-
-        {/* Stats row */}
-        <div className="mt-1 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-700">
-          <span className="inline-flex items-center gap-2">
-            <Icon
-              icon="mdi:account-multiple-outline"
-              width={18}
-              height={18}
-              className="text-slate-500"
-            />
-            {memberCount} members
-          </span>
-          <span aria-hidden className="h-4 w-px bg-slate-400/40" />
-          <span className="inline-flex items-center gap-2">
-            <Icon
-              icon="mdi:calendar-blank-outline"
-              width={18}
-              height={18}
-              className="text-slate-500"
-            />
-            {meetFrequency}
-          </span>
-          <span aria-hidden className="h-4 w-px bg-slate-400/40" />
-          <span className="inline-flex items-center gap-2">
-            <Icon
-              icon="mdi:map-marker-outline"
-              width={18}
-              height={18}
-              className="text-slate-500"
-            />
-            {hostedBy}
-          </span>
         </div>
       </div>
     </section>

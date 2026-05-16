@@ -1,12 +1,16 @@
+import "server-only";
+
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
-import type { Event, GetEventResponse } from "@/types/event";
+import type { Event } from "@/types/event";
 
-export async function GET(
-  _request: Request,
-  { params }: RouteContext<"/api/events/[id]">,
-): Promise<Response> {
-  const { id } = await params;
+const ATTENDEE_AVATAR_LIMIT = 12;
 
+// Server-only loader for a single event. Returns null if the event doesn't
+// exist so callers can decide between an inline message and a 404 boundary.
+// Wrapped in React.cache so multiple server components rendered in the same
+// request (e.g. metadata + page) share a single query.
+export const getEventById = cache(async (id: string): Promise<Event | null> => {
   const row = await prisma.event.findUnique({
     where: { id },
     include: {
@@ -23,7 +27,7 @@ export async function GET(
   });
 
   if (!row) {
-    return Response.json({ error: "Event not found" }, { status: 404 });
+    return null;
   }
 
   const goingCount = row.rsvps.filter((r) => r.status === "GOING").length;
@@ -36,13 +40,13 @@ export async function GET(
       ? row.reviews.reduce((sum, r) => sum + r.score, 0) / row.reviews.length
       : null;
 
-  // Surface up to ~12 attendee avatars for hero/details strips.
+  // Surface a capped strip of attendee avatars for the hero / details panels.
   const attendeeAvatars = row.rsvps
     .filter((r) => r.status === "GOING" && r.user.avatarUrl)
     .map((r) => r.user.avatarUrl as string)
-    .slice(0, 12);
+    .slice(0, ATTENDEE_AVATAR_LIMIT);
 
-  const event: Event = {
+  return {
     id: row.id,
     title: row.title,
     description: row.description,
@@ -68,7 +72,4 @@ export async function GET(
     averageRating,
     attendeeAvatars,
   };
-
-  const body: GetEventResponse = { event };
-  return Response.json(body);
-}
+});

@@ -35,7 +35,8 @@ function eventCategorySlug(title: string): string {
 // Parse a free-form mock date like "Sun, May 12 · 6:00 PM" → Date.
 // We assume year 2025 for the seed (mock dates have no year).
 function parseMockDate(value: string, year = 2025): Date {
-  const cleaned = value.split("·")[0]?.split("–")[0]?.split("-")[0]?.trim() ?? value;
+  const cleaned =
+    value.split("·")[0]?.split("–")[0]?.split("-")[0]?.trim() ?? value;
   const time = value.includes("·") ? value.split("·")[1]?.trim() : undefined;
   const composite = `${cleaned} ${year}${time ? ` ${time}` : ""}`;
   const parsed = new Date(composite);
@@ -46,34 +47,166 @@ function parseMockDate(value: string, year = 2025): Date {
 }
 
 const SEED_USERS = [
-  { name: "Sarah Mitchell", email: "sarah@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=20", city: "New York, NY" },
-  { name: "James Carter", email: "james@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=1", city: "Atlanta, GA" },
-  { name: "Priya Shah", email: "priya@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=2", city: "Atlanta, GA" },
-  { name: "Marcus Lee", email: "marcus@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=3", city: "Atlanta, GA" },
-  { name: "Sofia Reyes", email: "sofia@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=4", city: "Atlanta, GA" },
-  { name: "Deborah Kim", email: "deborah@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=5", city: "Houston, TX" },
-  { name: "Nathan Brooks", email: "nathan@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=6", city: "Houston, TX" },
-  { name: "Grace Thompson", email: "grace@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=7", city: "Houston, TX" },
-  { name: "Caleb Anderson", email: "caleb@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=8", city: "Dallas, TX" },
-  { name: "Aisha Williams", email: "aisha@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=9", city: "Dallas, TX" },
-  { name: "Tyler Park", email: "tyler@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=10", city: "Dallas, TX" },
-  { name: "Zoe Ramirez", email: "zoe@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=11", city: "Dallas, TX" },
-  { name: "David Cohen", email: "david@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=12", city: "Charlotte, NC" },
-  { name: "Emmanuel Adeyemi", email: "emmanuel@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=13", city: "Charlotte, NC" },
-  { name: "Joseph Nguyen", email: "joseph@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=14", city: "Charlotte, NC" },
-  { name: "Lydia Patel", email: "lydia@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=15", city: "Nashville, TN" },
-  { name: "Aaron Bennett", email: "aaron@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=16", city: "Nashville, TN" },
-  { name: "Hannah Wright", email: "hannah@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=17", city: "Nashville, TN" },
-  { name: "Luke Foster", email: "luke@faithconnect.dev", avatar: "https://i.pravatar.cc/150?img=18", city: "Nashville, TN" },
+  {
+    name: "Sarah Mitchell",
+    email: "sarah@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=20",
+    city: "New York, NY",
+  },
+  {
+    name: "James Carter",
+    email: "james@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=1",
+    city: "Atlanta, GA",
+  },
+  {
+    name: "Priya Shah",
+    email: "priya@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=2",
+    city: "Atlanta, GA",
+  },
+  {
+    name: "Marcus Lee",
+    email: "marcus@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=3",
+    city: "Atlanta, GA",
+  },
+  {
+    name: "Sofia Reyes",
+    email: "sofia@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=4",
+    city: "Atlanta, GA",
+  },
+  {
+    name: "Deborah Kim",
+    email: "deborah@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=5",
+    city: "Houston, TX",
+  },
+  {
+    name: "Nathan Brooks",
+    email: "nathan@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=6",
+    city: "Houston, TX",
+  },
+  {
+    name: "Grace Thompson",
+    email: "grace@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=7",
+    city: "Houston, TX",
+  },
+  {
+    name: "Caleb Anderson",
+    email: "caleb@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=8",
+    city: "Dallas, TX",
+  },
+  {
+    name: "Aisha Williams",
+    email: "aisha@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=9",
+    city: "Dallas, TX",
+  },
+  {
+    name: "Tyler Park",
+    email: "tyler@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=10",
+    city: "Dallas, TX",
+  },
+  {
+    name: "Zoe Ramirez",
+    email: "zoe@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=11",
+    city: "Dallas, TX",
+  },
+  {
+    name: "David Cohen",
+    email: "david@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=12",
+    city: "Charlotte, NC",
+  },
+  {
+    name: "Emmanuel Adeyemi",
+    email: "emmanuel@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=13",
+    city: "Charlotte, NC",
+  },
+  {
+    name: "Joseph Nguyen",
+    email: "joseph@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=14",
+    city: "Charlotte, NC",
+  },
+  {
+    name: "Lydia Patel",
+    email: "lydia@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=15",
+    city: "Nashville, TN",
+  },
+  {
+    name: "Aaron Bennett",
+    email: "aaron@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=16",
+    city: "Nashville, TN",
+  },
+  {
+    name: "Hannah Wright",
+    email: "hannah@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=17",
+    city: "Nashville, TN",
+  },
+  {
+    name: "Luke Foster",
+    email: "luke@faithconnect.dev",
+    avatar: "https://i.pravatar.cc/150?img=18",
+    city: "Nashville, TN",
+  },
 ];
 
 const SEED_CHURCHES = [
-  { name: "Grace Community Church", description: "Helping people find and follow Jesus. We exist to love God, love people, and make disciples.", verified: true, city: "New York, NY", address: "123 Main St, New York, NY 10001" },
-  { name: "Grace Fellowship Church", description: "A vibrant community of believers in worship and word.", verified: true, city: "Atlanta, GA", address: "200 Peachtree St, Atlanta, GA 30303" },
-  { name: "Cornerstone Community", description: "Building lives on the Cornerstone, Jesus Christ.", verified: false, city: "Houston, TX", address: "800 Texas Ave, Houston, TX 77002" },
-  { name: "Harvest Life Ministries", description: "Equipping the next generation to live boldly for Christ.", verified: true, city: "Dallas, TX", address: "500 N Akard St, Dallas, TX 75201" },
-  { name: "River of Life Church", description: "Streams of living water for every season of life.", verified: false, city: "Charlotte, NC", address: "300 S Tryon St, Charlotte, NC 28202" },
-  { name: "New Hope Baptist", description: "Sharing hope through service and love.", verified: false, city: "Nashville, TN", address: "150 4th Ave N, Nashville, TN 37219" },
+  {
+    name: "Grace Community Church",
+    description:
+      "Helping people find and follow Jesus. We exist to love God, love people, and make disciples.",
+    verified: true,
+    city: "New York, NY",
+    address: "123 Main St, New York, NY 10001",
+  },
+  {
+    name: "Grace Fellowship Church",
+    description: "A vibrant community of believers in worship and word.",
+    verified: true,
+    city: "Atlanta, GA",
+    address: "200 Peachtree St, Atlanta, GA 30303",
+  },
+  {
+    name: "Cornerstone Community",
+    description: "Building lives on the Cornerstone, Jesus Christ.",
+    verified: false,
+    city: "Houston, TX",
+    address: "800 Texas Ave, Houston, TX 77002",
+  },
+  {
+    name: "Harvest Life Ministries",
+    description: "Equipping the next generation to live boldly for Christ.",
+    verified: true,
+    city: "Dallas, TX",
+    address: "500 N Akard St, Dallas, TX 75201",
+  },
+  {
+    name: "River of Life Church",
+    description: "Streams of living water for every season of life.",
+    verified: false,
+    city: "Charlotte, NC",
+    address: "300 S Tryon St, Charlotte, NC 28202",
+  },
+  {
+    name: "New Hope Baptist",
+    description: "Sharing hope through service and love.",
+    verified: false,
+    city: "Nashville, TN",
+    address: "150 4th Ave N, Nashville, TN 37219",
+  },
 ];
 
 const SEED_TAGS = [
@@ -212,16 +345,16 @@ async function main() {
           iconName: c.iconName,
           color: c.color,
         },
-      })
-    )
+      }),
+    ),
   );
   const catBySlug = new Map(categories.map((c) => [c.slug, c]));
 
   console.log("→ Seeding tags…");
   const tags = await Promise.all(
     SEED_TAGS.map((t) =>
-      prisma.tag.create({ data: { label: t.label, color: t.color } })
-    )
+      prisma.tag.create({ data: { label: t.label, color: t.color } }),
+    ),
   );
   const tagByLabel = new Map(tags.map((t) => [t.label, t]));
 
@@ -235,8 +368,8 @@ async function main() {
           avatarUrl: u.avatar,
           city: u.city,
         },
-      })
-    )
+      }),
+    ),
   );
   const userByEmail = new Map(users.map((u) => [u.email, u]));
   const sarah = userByEmail.get("sarah@faithconnect.dev")!;
@@ -252,8 +385,8 @@ async function main() {
           city: c.city,
           address: c.address,
         },
-      })
-    )
+      }),
+    ),
   );
   const churchByName = new Map(churches.map((c) => [c.name, c]));
 
@@ -261,8 +394,8 @@ async function main() {
   for (const g of mockGroups) {
     const category =
       catBySlug.get(slugify(g.category)) ?? catBySlug.get("bible-study")!;
-    const church = Array.from(churchByName.values()).find((ch) =>
-      ch.city === g.location
+    const church = Array.from(churchByName.values()).find(
+      (ch) => ch.city === g.location,
     );
     const owner = users[Math.floor(Math.random() * users.length)];
 
@@ -297,8 +430,8 @@ async function main() {
             groupId: created.id,
             role: u.id === owner.id ? "OWNER" : "MEMBER",
           },
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -330,7 +463,10 @@ async function main() {
     });
 
     // Sprinkle RSVPs across users.
-    const goingCount = Math.min(users.length - 2, Math.max(3, Math.floor(e.attendees / 30)));
+    const goingCount = Math.min(
+      users.length - 2,
+      Math.max(3, Math.floor(e.attendees / 30)),
+    );
     const goingUsers = users.slice(0, goingCount);
     const interestedUsers = users.slice(goingCount, goingCount + 2);
 
@@ -338,12 +474,12 @@ async function main() {
       ...goingUsers.map((u) =>
         prisma.rsvp.create({
           data: { userId: u.id, eventId: created.id, status: "GOING" },
-        })
+        }),
       ),
       ...interestedUsers.map((u) =>
         prisma.rsvp.create({
           data: { userId: u.id, eventId: created.id, status: "INTERESTED" },
-        })
+        }),
       ),
     ]);
 
@@ -357,8 +493,8 @@ async function main() {
               score: Math.round(e.rating!),
               comment: REVIEW_COMMENTS[i % REVIEW_COMMENTS.length],
             },
-          })
-        )
+          }),
+        ),
       );
     }
   }
@@ -373,8 +509,8 @@ async function main() {
           toId: f.id,
           acceptedAt: new Date(),
         },
-      })
-    )
+      }),
+    ),
   );
 
   console.log("✅ Seed complete.");

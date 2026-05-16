@@ -1,7 +1,14 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Icon } from "@iconify/react";
 
-export type TagColor = "purple" | "green" | "orange" | "blue" | "violet" | "cyan";
+export type TagColor =
+  | "purple"
+  | "green"
+  | "orange"
+  | "blue"
+  | "violet"
+  | "cyan";
 
 const tagStyles: Record<TagColor, string> = {
   purple: "bg-purple-50 text-purple-500",
@@ -41,6 +48,8 @@ export type GroupCardProps = {
   friendsInGroup: number;
   onFavorite?: () => void;
   onViewGroup?: () => void;
+  /** When provided, "View Group" renders as a Link to this href. */
+  href?: string;
 };
 
 export function GroupCard({
@@ -62,17 +71,26 @@ export function GroupCard({
   friendsInGroup,
   onFavorite,
   onViewGroup,
+  href,
 }: GroupCardProps) {
+  const viewGroupClassName =
+    "rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700 active:scale-95";
   return (
     <div className="flex w-[530px] flex-col gap-3">
       {/* ── Hero image — stands alone with its own rounded corners ── */}
       <div className="relative h-72 w-full overflow-hidden rounded-3xl">
-        <Image
-          src={coverImageUrl}
-          alt={coverImageAlt}
-          fill
-          className="object-cover"
-        />
+        {coverImageUrl ? (
+          <Image
+            src={coverImageUrl}
+            alt={coverImageAlt}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-slate-200 object-cover">
+            <span className="text-slate-400">No Image</span>
+          </div>
+        )}
 
         {/* dark gradient over the bottom half */}
         <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent" />
@@ -99,10 +117,17 @@ export function GroupCard({
           {/* Icon + name + description */}
           <div className="flex items-start gap-3">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white shadow">
-              <Icon icon={groupIconName} width={24} height={24} className="text-slate-700" />
+              <Icon
+                icon={groupIconName}
+                width={24}
+                height={24}
+                className="text-slate-700"
+              />
             </div>
             <div className="flex flex-col">
-              <h2 className="text-lg font-bold leading-snug text-white">{groupName}</h2>
+              <h2 className="text-lg font-bold leading-snug text-white">
+                {groupName}
+              </h2>
               <p className="text-sm text-white/80">{description}</p>
             </div>
           </div>
@@ -157,7 +182,12 @@ export function GroupCard({
                 className="relative h-9 w-9 overflow-hidden rounded-full border-2 border-white"
                 style={{ zIndex: previewMembers.length - i }}
               >
-                <Image src={member.imageUrl} alt={member.name} fill className="object-cover" />
+                <Image
+                  src={member.imageUrl}
+                  alt={member.name}
+                  fill
+                  className="object-cover"
+                />
               </div>
             ))}
             {extraMemberCount > 0 && (
@@ -174,10 +204,17 @@ export function GroupCard({
         {/* Rating */}
         <div className="flex flex-col items-center">
           <div className="flex items-center gap-1">
-            <Icon icon="mdi:star-outline" width={18} height={18} className="text-violet-400" />
+            <Icon
+              icon="mdi:star-outline"
+              width={18}
+              height={18}
+              className="text-violet-400"
+            />
             <span className="text-sm font-semibold text-slate-800">
               {rating.toFixed(1)}{" "}
-              <span className="font-normal text-slate-500">({ratingCount})</span>
+              <span className="font-normal text-slate-500">
+                ({ratingCount})
+              </span>
             </span>
           </div>
           <span className="text-xs text-slate-400">Member Rating</span>
@@ -186,19 +223,29 @@ export function GroupCard({
         {/* Friends in group */}
         <div className="flex flex-col items-center">
           <div className="flex items-center gap-1">
-            <Icon icon="mdi:account-multiple-outline" width={18} height={18} className="text-violet-400" />
-            <span className="text-sm font-semibold text-slate-800">{friendsInGroup} Friends</span>
+            <Icon
+              icon="mdi:account-multiple-outline"
+              width={18}
+              height={18}
+              className="text-violet-400"
+            />
+            <span className="text-sm font-semibold text-slate-800">
+              {friendsInGroup} Friends
+            </span>
           </div>
           <span className="text-xs text-slate-400">In This Group</span>
         </div>
 
         {/* CTA button */}
-        <button
-          onClick={onViewGroup}
-          className="rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700 active:scale-95"
-        >
-          View Group
-        </button>
+        {href ? (
+          <Link href={href} className={viewGroupClassName}>
+            View Group
+          </Link>
+        ) : (
+          <button onClick={onViewGroup} className={viewGroupClassName}>
+            View Group
+          </button>
+        )}
       </div>
     </div>
   );

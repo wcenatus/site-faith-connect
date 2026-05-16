@@ -20,6 +20,10 @@ export type Group = {
   coverImageUrl: string | null;
   iconName: string | null;
   city: string | null;
+  // Street address for the group's regular meeting location, when known.
+  // Sourced from the hosting church's address since groups don't carry their
+  // own address column. Used by the detail page for the map / directions.
+  address: string | null;
   meetFrequency: string | null;
   isActive: boolean;
   hostedBy: string | null;
@@ -28,6 +32,9 @@ export type Group = {
   memberCount: number;
   previewMembers: GroupMemberPreviewDto[];
   extraMemberCount: number;
+  // Wider strip of member avatars surfaced by the detail loader for the
+  // "Members" people grid. Empty for the list loader.
+  memberAvatars: string[];
   averageRating: number | null;
   ratingCount: number;
 };

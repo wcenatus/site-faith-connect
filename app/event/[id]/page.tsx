@@ -1,11 +1,9 @@
-"use client";
-
-import { use, useEffect, useState } from "react";
 import { BasicSection } from "@/components/basic-section";
 import { EventHero } from "@/components/event-hero";
 import { ProfileCard } from "@/components/profile-card";
 import { EventDetails } from "@/components/event-details";
-import { getEvent, type Event } from "@/services/events-service";
+import { PeopleGrid } from "@/components/people-grid";
+import { getEventById } from "@/server/events/getEventById";
 import {
   formatEventDate,
   formatEventDateLong,
@@ -16,54 +14,11 @@ type EventPageProps = {
   params: Promise<{ id: string }>;
 };
 
-export default function EventPage({ params }: EventPageProps) {
-  const { id } = use(params);
-  const [event, setEvent] = useState<Event | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [notFound, setNotFound] = useState(false);
+export default async function EventPage({ params }: EventPageProps) {
+  const { id } = await params;
+  const event = await getEventById(id);
 
-  useEffect(() => {
-    const controller = new AbortController();
-
-    setIsLoading(true);
-    setError(null);
-    setNotFound(false);
-
-    getEvent(id, controller.signal)
-      .then((data) => {
-        if (data === null) {
-          setNotFound(true);
-        } else {
-          setEvent(data);
-        }
-      })
-      .catch((err: unknown) => {
-        if (err instanceof DOMException && err.name === "AbortError") return;
-        setError(err instanceof Error ? err.message : "Unable to load event");
-      })
-      .finally(() => setIsLoading(false));
-
-    return () => controller.abort();
-  }, [id]);
-
-  if (isLoading) {
-    return (
-      <main className="w-full">
-        <p className="text-sm text-slate-500">Loading event…</p>
-      </main>
-    );
-  }
-
-  if (error) {
-    return (
-      <main className="w-full">
-        <p className="text-sm text-rose-600">{error}</p>
-      </main>
-    );
-  }
-
-  if (notFound || !event) {
+  if (!event) {
     return (
       <main className="w-full">
         <p className="text-sm text-slate-500">Event not found.</p>
@@ -140,16 +95,10 @@ export default function EventPage({ params }: EventPageProps) {
 
           {event.attendeeAvatars.length > 0 && (
             <BasicSection title="People Going">
-              <div className="flex flex-wrap gap-2">
-                {event.attendeeAvatars.map((avatar, idx) => (
-                  <img
-                    key={`${avatar}-${idx}`}
-                    src={avatar}
-                    alt="Attendee"
-                    className="w-20 h-20 rounded-full"
-                  />
-                ))}
-              </div>
+              <PeopleGrid
+                people={event.attendeeAvatars.map((imageUrl) => ({ imageUrl }))}
+                fallbackAlt="Attendee"
+              />
             </BasicSection>
           )}
         </div>

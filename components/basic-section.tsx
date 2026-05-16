@@ -1,3 +1,5 @@
+"use client";
+
 export type BasicSectionProps = {
   title: string;
   highlightColor?: string;

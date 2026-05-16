@@ -1,7 +1,14 @@
-import { prisma } from "@/lib/prisma";
-import type { Event, GetEventsResponse } from "@/types/event";
+import "server-only";
 
-export async function GET(): Promise<Response> {
+import { cache } from "react";
+import { prisma } from "@/lib/prisma";
+import type { Event } from "@/types/event";
+
+// Server-only loader for the events list. Server components `await getEvents()`
+// directly so we skip the HTTP hop a route handler would impose. Wrapped in
+// React.cache so multiple components rendered in the same request share a
+// single query.
+export const getEvents = cache(async (): Promise<Event[]> => {
   const rows = await prisma.event.findMany({
     orderBy: { startsAt: "asc" },
     include: {
@@ -12,7 +19,7 @@ export async function GET(): Promise<Response> {
     },
   });
 
-  const events: Event[] = rows.map((event) => {
+  return rows.map((event) => {
     const goingCount = event.rsvps.filter((r) => r.status === "GOING").length;
     const interestedCount = event.rsvps.filter(
       (r) => r.status === "INTERESTED",
@@ -48,11 +55,8 @@ export async function GET(): Promise<Response> {
       goingCount,
       interestedCount,
       averageRating,
-      // The list view doesn't show avatars; the detail endpoint fills this in.
+      // The list view doesn't ship attendee avatars; the detail loader does.
       attendeeAvatars: [],
     };
   });
-
-  const body: GetEventsResponse = { events };
-  return Response.json(body);
-}
+});

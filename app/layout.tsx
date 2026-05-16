@@ -23,7 +23,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-zinc-50">
+      <body className="min-h-full overflow-x-hidden bg-zinc-50">
         <Navbar />
         <main className="mx-auto w-full max-w-[1400px] px-1 py-8">
           {children}

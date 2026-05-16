@@ -1,14 +1,21 @@
+import "server-only";
+
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
-import type { Group, GetGroupsResponse } from "@/types/group";
+import type { Group } from "@/types/group";
 
 const PREVIEW_MEMBER_LIMIT = 4;
 
-export async function GET(): Promise<Response> {
+// Server-only loader for the groups list. Server components `await getGroups()`
+// directly so we skip the HTTP hop a route handler would impose. Wrapped in
+// React.cache so multiple components rendered in the same request share a
+// single query.
+export const getGroups = cache(async (): Promise<Group[]> => {
   const rows = await prisma.group.findMany({
     orderBy: { createdAt: "desc" },
     include: {
       category: true,
-      church: { select: { name: true } },
+      church: { select: { name: true, address: true } },
       tags: { include: { tag: true } },
       members: {
         include: { user: { select: { name: true, avatarUrl: true } } },
@@ -17,7 +24,7 @@ export async function GET(): Promise<Response> {
     },
   });
 
-  const groups: Group[] = rows.map((group) => {
+  return rows.map((group) => {
     const memberCount = group.members.length;
 
     const previewMembers = group.members
@@ -43,6 +50,7 @@ export async function GET(): Promise<Response> {
       coverImageUrl: group.coverImageUrl,
       iconName: group.iconName,
       city: group.city,
+      address: group.church?.address ?? null,
       meetFrequency: group.meetFrequency,
       isActive: group.isActive,
       hostedBy: group.church?.name ?? null,
@@ -60,11 +68,10 @@ export async function GET(): Promise<Response> {
       memberCount,
       previewMembers,
       extraMemberCount,
+      // The list view doesn't ship wide member avatars; the detail loader does.
+      memberAvatars: [],
       averageRating,
       ratingCount: group.reviews.length,
     };
   });
-
-  const body: GetGroupsResponse = { groups };
-  return Response.json(body);
-}
+});
