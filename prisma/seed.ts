@@ -365,7 +365,7 @@ async function main() {
         data: {
           name: u.name,
           email: u.email,
-          avatarUrl: u.avatar,
+          image: u.avatar,
           city: u.city,
         },
       }),

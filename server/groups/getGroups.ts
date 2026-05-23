@@ -18,7 +18,7 @@ export const getGroups = cache(async (): Promise<Group[]> => {
       church: { select: { name: true, address: true } },
       tags: { include: { tag: true } },
       members: {
-        include: { user: { select: { name: true, avatarUrl: true } } },
+        include: { user: { select: { name: true, image: true } } },
       },
       reviews: { select: { score: true } },
     },
@@ -28,11 +28,11 @@ export const getGroups = cache(async (): Promise<Group[]> => {
     const memberCount = group.members.length;
 
     const previewMembers = group.members
-      .filter((m) => m.user.avatarUrl)
+      .filter((m) => m.user.image)
       .slice(0, PREVIEW_MEMBER_LIMIT)
       .map((m) => ({
         name: m.user.name,
-        avatarUrl: m.user.avatarUrl as string,
+        avatarUrl: m.user.image as string,
       }));
 
     const extraMemberCount = Math.max(0, memberCount - previewMembers.length);

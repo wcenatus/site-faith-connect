@@ -19,7 +19,7 @@ export const getGroupById = cache(async (id: string): Promise<Group | null> => {
       church: { select: { name: true, address: true } },
       tags: { include: { tag: true } },
       members: {
-        include: { user: { select: { name: true, avatarUrl: true } } },
+        include: { user: { select: { name: true, image: true } } },
       },
       reviews: { select: { score: true } },
     },
@@ -32,11 +32,11 @@ export const getGroupById = cache(async (id: string): Promise<Group | null> => {
   const memberCount = row.members.length;
 
   const previewMembers = row.members
-    .filter((m) => m.user.avatarUrl)
+    .filter((m) => m.user.image)
     .slice(0, PREVIEW_MEMBER_LIMIT)
     .map((m) => ({
       name: m.user.name,
-      avatarUrl: m.user.avatarUrl as string,
+      avatarUrl: m.user.image as string,
     }));
 
   const extraMemberCount = Math.max(0, memberCount - previewMembers.length);
@@ -44,8 +44,8 @@ export const getGroupById = cache(async (id: string): Promise<Group | null> => {
   // Capped strip of member avatars for the "Members" people grid on the
   // detail page. Mirrors the attendee-avatar strip on the event detail page.
   const memberAvatars = row.members
-    .filter((m) => m.user.avatarUrl)
-    .map((m) => m.user.avatarUrl as string)
+    .filter((m) => m.user.image)
+    .map((m) => m.user.image as string)
     .slice(0, MEMBER_AVATAR_LIMIT);
 
   const averageRating =

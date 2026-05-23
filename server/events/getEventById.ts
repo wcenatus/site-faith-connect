@@ -19,7 +19,7 @@ export const getEventById = cache(async (id: string): Promise<Event | null> => {
       rsvps: {
         select: {
           status: true,
-          user: { select: { avatarUrl: true } },
+          user: { select: { image: true } },
         },
       },
       reviews: { select: { score: true } },
@@ -42,8 +42,8 @@ export const getEventById = cache(async (id: string): Promise<Event | null> => {
 
   // Surface a capped strip of attendee avatars for the hero / details panels.
   const attendeeAvatars = row.rsvps
-    .filter((r) => r.status === "GOING" && r.user.avatarUrl)
-    .map((r) => r.user.avatarUrl as string)
+    .filter((r) => r.status === "GOING" && r.user.image)
+    .map((r) => r.user.image as string)
     .slice(0, ATTENDEE_AVATAR_LIMIT);
 
   return {

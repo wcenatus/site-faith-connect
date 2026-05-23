@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@iconify/react";
+import { signOutUser } from "@/server/auth/signOut";
+import { getInitials, type SessionUser } from "@/types/session-user";
 
 const NAV_ITEMS = [
   { label: "Home", href: "/" },
@@ -12,40 +14,41 @@ const NAV_ITEMS = [
   { label: "Messages", href: "/messages", icon: "mdi:message" },
 ];
 
-export function Navbar() {
+type NavbarProps = {
+  user: SessionUser | null;
+};
+
+export function Navbar({ user }: NavbarProps) {
   const pathname = usePathname();
 
   return (
-    <nav className="w-full bg-white border-b border-slate-200">
-      <div className="flex items-center gap-5 px-6 h-14">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 shrink-0">
+    <nav className="w-full border-b border-slate-200 bg-white">
+      <div className="flex h-14 items-center gap-5 px-6">
+        <Link href="/" className="flex shrink-0 items-center gap-2">
           <Icon
             icon="mdi:cross"
             width={22}
             height={22}
             className="text-indigo-600"
           />
-          <span className="font-bold text-slate-900 text-base">
+          <span className="text-base font-bold text-slate-900">
             FaithConnect
           </span>
         </Link>
 
-        {/* Search */}
-        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 w-60 text-left">
+        <button className="flex w-60 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-left">
           <Icon
             icon="mdi:magnify"
             width={16}
             height={16}
-            className="text-slate-400 shrink-0"
+            className="shrink-0 text-slate-400"
           />
-          <span className="text-sm text-slate-400 flex-1 truncate">
+          <span className="flex-1 truncate text-sm text-slate-400">
             Search events, groups, people...
           </span>
         </button>
 
-        {/* Nav items */}
-        <div className="flex items-stretch gap-0.5 flex-1 h-full">
+        <div className="flex h-full flex-1 items-stretch gap-0.5">
           {NAV_ITEMS.map(({ label, href, icon }) => {
             const isActive = pathname === href;
             return (
@@ -69,39 +72,69 @@ export function Navbar() {
                 )}
                 {label}
                 {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 rounded-t-full" />
+                  <span className="absolute right-0 bottom-0 left-0 h-0.5 rounded-t-full bg-indigo-600" />
                 )}
               </Link>
             );
           })}
         </div>
 
-        {/* Bell */}
-        <button className="relative p-1.5 rounded-full hover:bg-slate-100 transition-colors shrink-0">
+        <button className="relative shrink-0 rounded-full p-1.5 transition-colors hover:bg-slate-100">
           <Icon
             icon="mdi:bell-outline"
             width={22}
             height={22}
             className="text-slate-600"
           />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-400 rounded-full ring-2 ring-white" />
+          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-orange-400 ring-2 ring-white" />
         </button>
 
-        {/* User */}
-        <button className="flex items-center gap-2 shrink-0">
-          <div className="w-8 h-8 rounded-full bg-linear-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
-            <span className="text-white text-sm font-semibold select-none">
-              S
-            </span>
+        {user ? (
+          <div className="flex shrink-0 items-center gap-3">
+            <div className="flex items-center gap-2">
+              {user.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={user.image}
+                  alt=""
+                  className="h-8 w-8 rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-violet-500 to-indigo-600">
+                  <span className="text-sm font-semibold text-white select-none">
+                    {getInitials(user.name)}
+                  </span>
+                </div>
+              )}
+              <span className="max-w-32 truncate text-sm font-medium text-slate-700">
+                {user.name ?? user.email}
+              </span>
+            </div>
+            <form action={signOutUser}>
+              <button
+                type="submit"
+                className="rounded-lg px-3 py-1.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+              >
+                Sign out
+              </button>
+            </form>
           </div>
-          <span className="text-sm font-medium text-slate-700">Sarah</span>
-          <Icon
-            icon="mdi:chevron-down"
-            width={16}
-            height={16}
-            className="text-slate-500"
-          />
-        </button>
+        ) : (
+          <div className="flex shrink-0 items-center gap-2">
+            <Link
+              href="/login"
+              className="rounded-lg px-3 py-1.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+            >
+              Log in
+            </Link>
+            <Link
+              href="/create-account"
+              className="rounded-lg bg-[#2c4a32] px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#23391f]"
+            >
+              Sign up
+            </Link>
+          </div>
+        )}
       </div>
     </nav>
   );
